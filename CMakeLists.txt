@@ -1,5 +1,20 @@
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.24)
+
+set(BUILD_SHARED_LIBS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+include(FetchContent)
+FetchContent_Declare(
+	SFML
+	GIT_REPOSITORY https://github.com/SFML/SFML.git
+	GIT_TAG 2.6.x
+	OVERRIDE_FIND_PACKAGE
+)
+FetchContent_MakeAvailable(SFML)
+
+set(SFML_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/sfml-src/include")
+set(SFML_LIBRARIES sfml-graphics sfml-window sfml-audio sfml-network sfml-system)
 
 # Specify default build type if none provided (before project() command)
 if(NOT CMAKE_BUILD_TYPE)
@@ -16,7 +31,7 @@ endif()
 project(sfml-book)
 
 # Configuration options
-set(SFML_STATIC_LIBRARIES FALSE CACHE BOOL "Use static SFML librares")
+set(SFML_STATIC_LIBRARIES TRUE CACHE BOOL "Use static SFML librares")
 
 # General compiler options
 if (SFML_STATIC_LIBRARIES)
@@ -118,10 +133,15 @@ macro(build_chapter CHAPTER_NAME)
 	target_link_libraries(${PROJECT_NAME} ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
 
 	install(TARGETS ${PROJECT_NAME}	RUNTIME DESTINATION ${CHAPTER_NAME})
-
+	
 	install(DIRECTORY ${CHAPTER_DIR}/Media
-			DESTINATION ${PROJECT_NAME}
-			PATTERN "CMakeLists.txt" EXCLUDE)
+	DESTINATION ${PROJECT_NAME}
+	PATTERN "CMakeLists.txt" EXCLUDE)
+	
+	if(WIN32)
+		install(FILES ${CMAKE_BINARY_DIR}/_deps/sfml-src/extlibs/bin/x64/openal32.dll DESTINATION ${CHAPTER_NAME})
+	endif()
+
 endmacro()
 
 # C++ source code, list of all subdirectories

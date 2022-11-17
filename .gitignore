@@ -19,3 +19,7 @@
 CMake/Build/*
 CMake/Install/*
 abandoned
+
+build/
+install/
+.cache/
